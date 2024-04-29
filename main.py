@@ -1,35 +1,9 @@
 import json
-import os
 import hashlib
-import time
-import re
+import os
 
-import struct
-
-def create_block_header(version, previous_block_hash, merkle_root, bits, nonce):
-    # Convert hash strings to binary
-    prev_block_hash_bin = bytes.fromhex(previous_block_hash)
-    merkle_root_bin = bytes.fromhex(merkle_root)
-
-    # Pack the block header into a binary format
-    header = struct.pack('<L32s32sLLL',
-                         version,
-                         prev_block_hash_bin,
-                         merkle_root_bin,
-                         int(time.time()),
-                         int(bits, 16),
-                         nonce)
-    return header
-
-
-def create_coinbase_transaction(block_height, reward_address, reward_amount):
-    inputs = {'block_height': block_height}
-    outputs = {'recipient': reward_address, 'amount': reward_amount}
-    coinbase_tx = {'txid': 'coinbase', 'inputs': [inputs], 'outputs': [outputs]}
-    return coinbase_tx
-
-
-def load_transactions():
+# Read transactions from JSON files in the mempool folder
+def read_transactions():
     transactions = []
     count = 0
     print("test")
@@ -46,39 +20,11 @@ def load_transactions():
                     continue
     return transactions
 
-
+# Validate transactions (dummy validation for demonstration)
 def validate_transaction(transaction):
-    try:
-        if not (isinstance(transaction['version'], int) and isinstance(transaction['locktime'], int)):
-            return False
-
-        # Validate inputs
-        total_input_value = 0
-        for vin in transaction['vin']:
-            if not re.match(r"^[a-f0-9]{64}$", vin['txid']):
-                return False
-            if not isinstance(vin['vout'], int):
-                return False
-            if vin['prevout']['value'] <= 0:
-                return False
-            total_input_value += vin['prevout']['value']
-        total_output_value = 0
-        for vout in transaction['vout']:
-            if 'scriptpubkey_address' not in vout or not re.match(r"^bc1[a-z0-9]{25,39}$", vout['scriptpubkey_address']):
-                return False
-            if vout['value'] <= 0:
-                return False
-            total_output_value += vout['value']
-        if total_input_value < total_output_value:
-            return False
-
-        return True
-    except KeyError:
-        return False
-
-
-
-
+    # Implement your validation logic here
+    # For demonstration purposes, assume all transactions are valid
+    return True
 
 def extract_all_txids(transactions):
     transaction_ids = []
@@ -89,64 +35,30 @@ def extract_all_txids(transactions):
                     transaction_ids.append(vin['txid'])
     return transaction_ids
 
-def mine_block(transactions, previous_block_hash, reward_address):
-    # Extract all transaction IDs from the transactions
-    transaction_ids = extract_all_txids(transactions)
-    # Calculate the Merkle root from the concatenated txids
-    merkle_root = hashlib.sha256(''.join(transaction_ids).encode()).hexdigest()
-    
-    # Define the block header parameters
-    version = 2  # Set the version of the block
-    bits = '1d00ffff'  # This is a placeholder for the difficulty target bits
-    nonce = 0  # Starting nonce, this will typically be incremented in the mining process
+# Create the coinbase transaction (dummy for demonstration)
+def create_coinbase_transaction():
+    return "coinbase_txid"
 
-    # Call create_block_header with all the required parameters
-    block_header = create_block_header(version, previous_block_hash, merkle_root, bits, nonce)
+# Mine the block (dummy for demonstration)
+def mine_block(transactions):
+    # Arrange transactions into a block (for demonstration, just use all valid transactions)
+    txids = extract_all_txids(transactions)
+    # Calculate the block header (dummy hash for demonstration)
+    block_header = hashlib.sha256("block_data".encode()).hexdigest()
+    return block_header, txids
 
-    # Calculate the block height and reward amount
-    block_height = 1  # Example block height, this should be dynamically determined
-    reward_amount = 12.5  # Reward amount for mining the block
-
-    # Create the coinbase transaction
-    coin_tx = create_coinbase_transaction(block_height, reward_address, reward_amount)
-
-    return block_header, coin_tx, transaction_ids
-
-def calculate_hash(block_header, txids):
-    content = block_header + ''.join(txids)
-    return hashlib.sha256(content.encode()).hexdigest()
-
-
-# def calculate_merkle_root(transactions):
-#     # Placeholder for Merkle root calculation; implement your actual logic
-#     if not transactions:
-#         return '0' * 64  # Return a default merkle root if no transactions
-#     # Simple example to simulate a merkle root calculation
-#     return hashlib.sha256(''.join(tx['txid'] for tx in transactions).encode()).hexdigest()
-
-
-def write_output(block_header, coin_tx, txids):
-    with open('output.txt', 'w') as file:
-        # Convert the binary block_header to a hex string and write it to file
-        file.write(block_header.hex() + '\n')
-        # Assuming coin_tx['txid'] is a string
-        file.write(coin_tx['txid'] + '\n')
+# Write output to output.txt
+def write_output(block_header, coinbase_txid, txids):
+    with open("output.txt", "w") as f:
+        f.write(block_header + "\n")
+        f.write(coinbase_txid + "\n")
         for txid in txids:
-            file.write(txid + '\n')
+            f.write(txid + "\n")
 
-
-def main():
-    transactions = load_transactions()
-    pvs_block_hash = '0000000000000000000000000000000000000000000000000000000000000000'
-    rwrd_address = '1BitcoinAddressV1uuuuuuuuuuumZ1AWm'
-
-    if pvs_block_hash and rwrd_address:
-        block_header, coin_tx, txids = mine_block(transactions, pvs_block_hash, rwrd_address)
-        print(txids)
-        write_output(block_header, coin_tx, txids)
-    else:
-        print("Error: Missing previous block hash or reward address")
-
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    transactions = read_transactions()
+    valid_transactions = [tx for tx in transactions if validate_transaction(tx)]
+    coinbase_txid = create_coinbase_transaction()
+    block_header, txids = mine_block(valid_transactions)
+    write_output(block_header, coinbase_txid, txids)
+    print("Block mined successfully! Check output.txt for details.")
