@@ -66,36 +66,7 @@ def validate_transaction(transaction):
 
 
 
-# def validate_transaction(transaction):
-#     required_keys = {'txid', 'inputs', 'outputs', 'fee', 'signature'}
-#     if not required_keys.issubset(set(transaction.keys())):
-#         return False
-#     if not isinstance(transaction['txid'], str) or not len(transaction['txid']) == 64:
-#         return False
-#     if not isinstance(transaction['inputs'], list) or not transaction['inputs']:
-#         return False
-#     if not isinstance(transaction['outputs'], list) or not transaction['outputs']:
-#         return False
-#     total_input_value = 0
-#
-#     for input_tx in transaction['inputs']:
-#         if not 'prev_txid' in input_tx or not 'output_index' in input_tx:
-#             return False
-#         total_input_value += input_tx.get('amount', 0)
-#     total_output_value = 0
-#
-#     for output in transaction['outputs']:
-#         if not 'amount' in output or not 'recipient' in output:
-#             return False
-#         total_output_value += output['amount']
-#
-#     calculated_fee = total_input_value - total_output_value
-#     if calculated_fee < 0 or calculated_fee != transaction['fee']:
-#         return False
-#     if not isinstance(transaction['signature'], str):
-#         return False
-#
-#     return True
+
 
 def extract_all_txids(transactions):
     transaction_ids = []
