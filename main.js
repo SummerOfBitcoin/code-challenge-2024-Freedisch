@@ -2,11 +2,13 @@ const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
 
+
 function createBlockHeader(previousBlockHash, merkleRoot, difficulty = '0000ffff00000000000000000000000000000000000000000000000000000000') {
     const version = 1;
     const timestamp = Math.floor(Date.now() / 1000);
     const nonce = 0;
-    const header = `${version}${previousBlockHash}${merkleRoot}${timestamp}${difficulty}${nonce}`;
+    // Create a buffer or a fixed-size string for the header
+    const header = `${version.toString().padStart(8, '0')}${previousBlockHash}${merkleRoot}${timestamp.toString().padStart(10, '0')}${difficulty}${nonce.toString().padStart(12, '0')}`;
     return header;
 }
 
