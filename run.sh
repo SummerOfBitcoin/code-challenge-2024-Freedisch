@@ -1,1 +1,1 @@
-python main.py
+node main.js
