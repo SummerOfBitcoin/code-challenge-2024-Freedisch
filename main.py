@@ -21,15 +21,17 @@ def create_coinbase_transaction(block_height, reward_address, reward_amount):
 
 def load_transactions():
     transactions = []
+    count = 0
     print("test")
     for filename in os.listdir('mempool'):
-        if filename.endswith('.json'):
+        if filename.endswith('.json') and count != 7:
             with open(f'mempool/{filename}', 'r') as file:
                 try:
                     transaction = json.load(file)
                     if all('txid' in vin for vin in transaction.get('vin', [])):
                         #print(f"Valid transaction found in {filename}")
                         transactions.append(transaction)
+                        count += 1
                 except json.JSONDecodeError:
                     continue
     return transactions
