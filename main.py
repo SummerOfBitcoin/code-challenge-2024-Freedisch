@@ -8,17 +8,38 @@ import struct
 
 def create_block_header(version, previous_block_hash, merkle_root, bits, nonce):
     # Convert hash strings to binary
+    target = int(bits, 16)
+    
+    # Initial nonce
+    nonce = 0
+    
+    # Pack the initial block header without the nonce
+    timestamp = int(time.time())
     prev_block_hash_bin = bytes.fromhex(previous_block_hash)
     merkle_root_bin = bytes.fromhex(merkle_root)
-
-    # Pack the block header into a binary format
-    header = struct.pack('<L32s32sLLL',
-                         version,
-                         prev_block_hash_bin,
-                         merkle_root_bin,
-                         int(time.time()),
-                         int(bits, 16),
-                         nonce)
+    header_format = '<L32s32sLL'
+    initial_header = struct.pack(header_format, version, prev_block_hash_bin, merkle_root_bin, timestamp, int(bits, 16))
+    
+    # Start mining
+    while True:
+        # Pack the nonce and complete the header
+        header = initial_header + struct.pack('<L', nonce)
+        
+        # Calculate the double SHA-256 hash of the header
+        hash_result = hashlib.sha256(hashlib.sha256(header).digest()).digest()
+        
+        # Convert the hash to an integer to compare against the target
+        hash_int = int.from_bytes(hash_result, byteorder='big')
+        
+        # Check if the hash is less than the target
+        if hash_int < target:
+            print(f"Nonce found: {nonce}")
+            print(f"Hash: {hash_result.hex()}")
+            break
+        
+        # Increment the nonce and try again
+        nonce += 1
+    
     return header
 
 
