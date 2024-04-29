@@ -2,7 +2,26 @@ import json
 import hashlib
 import os
 
-# Read transactions from JSON files in the mempool folder
+def calculate_block_header(transactions):
+    # Assume valid transactions are already filtered
+    version = 1
+    prev_block_hash = "0000000000000000000000000000000000000000000000000000000000000000"
+    merkle_root = hashlib.sha256("merkle_root_data".encode()).hexdigest()
+    timestamp = 1630425600  # Example timestamp (Unix timestamp for September 1, 2021)
+    difficulty_target = "0000ffff00000000000000000000000000000000000000000000000000000000"
+    nonce = 12345  # Example nonce
+
+    block_header = (
+        f"{version:08x}"
+        f"{prev_block_hash}"
+        f"{merkle_root}"
+        f"{timestamp:08x}"
+        f"{difficulty_target}"
+        f"{nonce:08x}"
+    )
+    block_hash = hashlib.sha256(hashlib.sha256(block_header.encode()).digest()).hexdigest()
+    return block_hash
+
 def read_transactions():
     transactions = []
     count = 0
@@ -44,8 +63,9 @@ def mine_block(transactions):
     # Arrange transactions into a block (for demonstration, just use all valid transactions)
     txids = extract_all_txids(transactions)
     # Calculate the block header (dummy hash for demonstration)
-    block_header = hashlib.sha256("block_data".encode()).hexdigest()
-    return block_header, txids
+    block_hash = calculate_block_header(transactions)
+    #block_header = hashlib.sha256("block_data".encode()).hexdigest()
+    return block_hash, txids
 
 # Write output to output.txt
 def write_output(block_header, coinbase_txid, txids):
