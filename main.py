@@ -3,13 +3,12 @@ import hashlib
 import os
 
 def calculate_block_header(transactions):
-    # Assume valid transactions are already filtered
     version = 1
     prev_block_hash = "0000000000000000000000000000000000000000000000000000000000000000"
     merkle_root = hashlib.sha256("merkle_root_data".encode()).hexdigest()
-    timestamp = 1630425600  # Example timestamp (Unix timestamp for September 1, 2021)
+    timestamp = 1630425600
     difficulty_target = "0000ffff00000000000000000000000000000000000000000000000000000000"
-    nonce = 12345  # Example nonce
+    nonce = 12345
 
     block_header = (
         f"{version:08x}"
@@ -39,10 +38,7 @@ def read_transactions():
                     continue
     return transactions
 
-# Validate transactions (dummy validation for demonstration)
 def validate_transaction(transaction):
-    # Implement your validation logic here
-    # For demonstration purposes, assume all transactions are valid
     return True
 
 def extract_all_txids(transactions):
@@ -54,20 +50,14 @@ def extract_all_txids(transactions):
                     transaction_ids.append(vin['txid'])
     return transaction_ids
 
-# Create the coinbase transaction (dummy for demonstration)
 def create_coinbase_transaction():
     return "coinbase_txid"
 
-# Mine the block (dummy for demonstration)
 def mine_block(transactions):
-    # Arrange transactions into a block (for demonstration, just use all valid transactions)
     txids = extract_all_txids(transactions)
-    # Calculate the block header (dummy hash for demonstration)
     block_hash = calculate_block_header(transactions)
-    #block_header = hashlib.sha256("block_data".encode()).hexdigest()
     return block_hash, txids
 
-# Write output to output.txt
 def write_output(block_header, coinbase_txid, txids):
     with open("output.txt", "w") as f:
         f.write(block_header + "\n")
